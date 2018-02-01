@@ -1,6 +1,7 @@
 package ru.jug;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,22 @@ public class MainController {
 
 	PersistenceMechanism pm = new PersistenceMechanism();
 	
+	@RequestMapping(value="/closestStoresForUsers", method = RequestMethod.GET)
+	public ArrayList<UserStore> closestStoresForUsers()
+	{
+		ArrayList<UserStore> retVal = new ArrayList<UserStore>();
+		ArrayList<User> users = pm.getUsers();
+		
+		for (User user : users) {
+			UserStore us = new UserStore();
+			us.setStore(getClosestStoreToAddress (user.getAddress()));
+			us.setUser(user);
+			retVal.add(us);
+		}
+		
+		return retVal;
+	}
+
 	@RequestMapping(value = "/stores", method = RequestMethod.POST)
 	public void addStore(@RequestBody Store store) 
 	{
@@ -34,6 +51,13 @@ public class MainController {
 	public ArrayList<User> getUsers()
 	{
 		return pm.getUsers();	
+	}
+	
+	private Store getClosestStoreToAddress(String address) {
+		Random rn = new Random();
+		ArrayList<Store> stores = pm.getStores();
+		int index = rn.nextInt(stores.size());
+		return stores.get(index);
 	}
 
 }

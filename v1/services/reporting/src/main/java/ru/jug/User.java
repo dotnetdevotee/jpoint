@@ -2,19 +2,18 @@ package ru.jug;
 
 public class User {
 
-	private int number;
+	private String address;
 	private String name;
 
 	public User() {
-		int a = 3;
 	}
 
-	public int getNumber() {
-		return number;
+	public String getAddress() {
+		return address;
 	}
 
-	public void setNumber(int number) {
-		this.number = number;
+	public void setAddress(String address) {
+		this.address = address;
 	}
 	
 	public String getName() {
