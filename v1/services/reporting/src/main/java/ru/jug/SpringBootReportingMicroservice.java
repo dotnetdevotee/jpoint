@@ -1,0 +1,14 @@
+package ru.jug;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class SpringBootReportingMicroservice {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		SpringApplication.run(SpringBootReportingMicroservice.class, args);
+	}
+
+}
