@@ -29,25 +29,25 @@ public class MainController {
 		return retVal;
 	}
 
-	@RequestMapping(value = "/stores", method = RequestMethod.POST)
+	@RequestMapping(value = "/reporting/stores", method = RequestMethod.POST)
 	public void addStore(@RequestBody Store store) 
 	{
 		pm.save(store);
 	}
 	
-	@RequestMapping(value = "/stores", method = RequestMethod.GET)
+	@RequestMapping(value = "/reporting/stores", method = RequestMethod.GET)
 	public ArrayList<Store> getStores()
 	{
 		return pm.getStores();	
 	}
 	
-	@RequestMapping(value = "/users", method = RequestMethod.POST)
+	@RequestMapping(value = "/reporting/users", method = RequestMethod.POST)
 	public void addStore(@RequestBody User user) 
 	{
 		pm.save(user);
 	}
 	
-	@RequestMapping(value = "/users", method = RequestMethod.GET)
+	@RequestMapping(value = "/reporting/users", method = RequestMethod.GET)
 	public ArrayList<User> getUsers()
 	{
 		return pm.getUsers();	
