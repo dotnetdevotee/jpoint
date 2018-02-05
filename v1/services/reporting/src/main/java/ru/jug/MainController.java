@@ -13,8 +13,8 @@ public class MainController {
 
 	PersistenceMechanism pm = new PersistenceMechanism();
 	
-	@RequestMapping(value="/closestStoresForUsers", method = RequestMethod.GET)
-	public ArrayList<UserStore> closestStoresForUsers()
+	@RequestMapping(value="/reporting/closestStoresForUsers", method = RequestMethod.GET)
+	public UserStoreCollection closestStoresForUsers()
 	{
 		ArrayList<UserStore> retVal = new ArrayList<UserStore>();
 		ArrayList<User> users = pm.getUsers();
@@ -26,7 +26,9 @@ public class MainController {
 			retVal.add(us);
 		}
 		
-		return retVal;
+		UserStoreCollection usc = new UserStoreCollection();
+		usc.setUserStores(retVal.toArray(new UserStore[0]));
+		return usc;
 	}
 
 	@RequestMapping(value = "/reporting/stores", method = RequestMethod.POST)

@@ -1,5 +1,8 @@
 package ru.jug.filter;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import com.google.gson.Gson;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
@@ -45,10 +49,17 @@ public class PostFilter extends ZuulFilter {
 	}
 
 	@Override
-	public Object run() {
-		
+	public Object run() 
+	{	
 		RequestContext ctx = RequestContext.getCurrentContext();
 		HttpServletRequest request = ctx.getRequest();
+	    
+	    // We're only interested in POSTs of new information
+	    if (request.getMethod().indexOf("POST") == -1)
+	    {
+	    	return null;
+	    }
+	    
 	    String path = request.getServletPath(); 
 
 	    SimpleRouteLocator routeLocator = 
@@ -68,23 +79,36 @@ public class PostFilter extends ZuulFilter {
 	    
 	    if (path.indexOf("store") > -1)
     	{
-	    	reportStore(headers, restTemplate, serviceID + path);
+			try {
+				Gson gson = new Gson();
+				BufferedReader reader = request.getReader();
+				Store store = gson.fromJson(reader, Store.class);
+		    	reportStore(headers, restTemplate, serviceID + path, store);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
     	}
 	    else
 	    {
-	    	reportUser(headers, restTemplate, serviceID + path);
+	    	try {
+				Gson gson = new Gson();
+				BufferedReader reader = request.getReader();
+				User user = gson.fromJson(reader, User.class);
+				reportUser(headers, restTemplate, serviceID + path, user);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    	
 	    }
 	    
 		return null;
 	}
 	
 	private String reportUser(MultiValueMap<String, String> headers, 
-			RestTemplate restTemplate, String fullPath) 
+			RestTemplate restTemplate, String fullPath, User objectToPass) 
 	{
-		User objectToPass = new User();
-	    objectToPass.setName("Testy Tester");
-	    objectToPass.setAddress("1313 Test Blvd");
-
 	    HttpEntity<User> outReq = new HttpEntity<User>(objectToPass, headers);
 	    String response = restTemplate.postForObject(fullPath, outReq, String.class);
 	    
@@ -92,12 +116,8 @@ public class PostFilter extends ZuulFilter {
 	}
 
 	private String reportStore(MultiValueMap<String, String> headers, 
-			RestTemplate restTemplate, String fullPath) 
+			RestTemplate restTemplate, String fullPath, Store objectToPass) 
 	{
-		Store objectToPass = new Store();
-	    objectToPass.setNumber(1);
-	    objectToPass.setAddress("1313 Test Blvd");
-
 	    HttpEntity<Store> outReq = new HttpEntity<Store>(objectToPass, headers);
 	    String response = restTemplate.postForObject(fullPath, outReq, String.class);
 	    
