@@ -1,7 +1,5 @@
 package ru.jug.filter;
 
-import java.io.IOException;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,12 +8,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.SimpleRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
-import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -25,6 +18,7 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
 import ru.jug.Store;
+import ru.jug.User;
 
 @EnableConfigurationProperties( { ZuulProperties.class } )
 public class PostFilter extends ZuulFilter {
@@ -72,16 +66,42 @@ public class PostFilter extends ZuulFilter {
 	    RestTemplate restTemplate = new RestTemplate();
 	    restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 	    
-	    Store objectToPass = new Store();
+	    if (path.indexOf("store") > -1)
+    	{
+	    	reportStore(headers, restTemplate, serviceID + path);
+    	}
+	    else
+	    {
+	    	reportUser(headers, restTemplate, serviceID + path);
+	    }
+	    
+		return null;
+	}
+	
+	private String reportUser(MultiValueMap<String, String> headers, 
+			RestTemplate restTemplate, String fullPath) 
+	{
+		User objectToPass = new User();
+	    objectToPass.setName("Testy Tester");
+	    objectToPass.setAddress("1313 Test Blvd");
+
+	    HttpEntity<User> outReq = new HttpEntity<User>(objectToPass, headers);
+	    String response = restTemplate.postForObject(fullPath, outReq, String.class);
+	    
+		return response;
+	}
+
+	private String reportStore(MultiValueMap<String, String> headers, 
+			RestTemplate restTemplate, String fullPath) 
+	{
+		Store objectToPass = new Store();
 	    objectToPass.setNumber(1);
 	    objectToPass.setAddress("1313 Test Blvd");
 
 	    HttpEntity<Store> outReq = new HttpEntity<Store>(objectToPass, headers);
+	    String response = restTemplate.postForObject(fullPath, outReq, String.class);
 	    
-	    //todo: Should limit to inbound POSTS and note appending of paths
-	    String response = restTemplate.postForObject(serviceID + path, outReq, String.class);
-	    
-		return null;
+		return response;
 	}
 
 }
